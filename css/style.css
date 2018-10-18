@@ -1,14 +1,19 @@
 .success,
-.error {
+.error,
+.warning {
   color: white;
   padding: 5px;
   margin: 5px 0 15px 0;
 }
 
 .success {
-  background: paleturquoise;
+  background: darkcyan;
 }
 
 .error {
   background: palevioletred;
+}
+
+.warning {
+  background: darkorange;
 }

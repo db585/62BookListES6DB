@@ -1,67 +1,114 @@
-// Book constructor
-function Book (title, author, isbn) {
-  this.title = title
-  this.author = author
-  this.isbn = isbn
-}
-
-// UI contructor
-function UI () {
-}
-
-// set addBookList methods to prototype
-UI.prototype.addBookList = function (book) {
-  const list = document.querySelector('#db-book-list')
-
-  // Create tr element
-  const row = document.createElement('tr')
-
-  // Insert cols
-  row.innerHTML = `
-  <td>${book.title}</td>
-  <td>${book.author}</td>
-  <td>${book.isbn}</td>
-  <td><a href="#" class="delete">X</a></td>
-  `
-
-  // Append row it to list
-  list.appendChild(row)
-}
-
-// Set method deleteBook to prototype
-UI.prototype.deleteBook = function (target) {
-  // console.log('deleteBook() executing...')
-  // If the target is X anchor remove li element
-  if (target.className === 'delete') {
-    target.parentElement.parentElement.remove()
+// Define Book class
+class Book {
+  constructor (title, author, isbn) {
+    this.title = title
+    this.author = author
+    this.isbn = isbn
   }
 }
 
-// set method clearFields to prototype
-UI.prototype.clearFields = function () {
-  document.querySelector('#title').value = ''
-  document.querySelector('#author').value = ''
-  document.querySelector('#isbn').value = ''
+// Define UI class and its methods
+class UI {
+  addBookList (book) {
+    const list = document.querySelector('#db-book-list')
+
+    // Create tr element
+    const row = document.createElement('tr')
+
+    // Insert cols
+    row.innerHTML = `
+    <td>${book.title}</td>
+    <td>${book.author}</td>
+    <td>${book.isbn}</td>
+    <td><a href="#" class="delete">X</a></td>
+    `
+
+    // Append row it to list
+    list.appendChild(row)
+  }
+
+  deleteBook (target) {
+    // console.log('deleteBook() executing...')
+
+    // If the target is X anchor remove li element
+    if (target.className === 'delete') {
+      target.parentElement.parentElement.remove()
+    }
+  }
+
+  clearFields () {
+    document.querySelector('#title').value = ''
+    document.querySelector('#author').value = ''
+    document.querySelector('#isbn').value = ''
+  }
+
+  showMsg (msg, className) {
+    const message = document.createElement('div')
+    message.className = `db-message ${className}`
+    message.appendChild(document.createTextNode(msg))
+
+    // Get parent
+    const container = document.querySelector('.container')
+    // Get form
+    const form = document.querySelector('#db-book-form')
+    // Insert into container and before form element
+    container.insertBefore(message, form)
+
+    // Disappear in 3 seconds
+    setTimeout(() => {
+      document.querySelector('.db-message').remove()
+    }, 3000)
+  }
 }
 
-// set method showMsg to prototype
-UI.prototype.showMsg = function (msg, className) {
-  const message = document.createElement('div')
-  message.className = `db-message ${className}`
-  message.appendChild(document.createTextNode(msg))
+// Define Store class to store data in LocalStorage
+class Storage {
+  static getBooks () {
+    let books = []
+    let booksLS = window.localStorage.getItem('books')
 
-  // Get parent
-  const container = document.querySelector('.container')
-  // Get form
-  const form = document.querySelector('#db-book-form')
-  // Insert into container and before form element
-  container.insertBefore(message, form)
+    // If books is not null then get books element from LS to books arr
+    if (booksLS !== null) {
+      books = JSON.parse(booksLS)
+    }
 
-  // Disappear in 3 seconds
-  setTimeout(() => {
-    document.querySelector('.db-message').remove()
-  }, 3000)
+    return books
+  }
+
+  static displayBooks () {
+    // Get books object from LS as an array
+    const books = Storage.getBooks()
+
+    // Make lis from books arr
+    books.forEach(book => {
+      const ui = new UI()
+
+      // Add book to the list
+      ui.addBookList(book)
+    })
+  }
+
+  // Add a book to LocalStorage
+  static addBook (book) {
+    // Get books object from LS as an array
+    const books = Storage.getBooks()
+
+    // Add new book to books array
+    books.push(book)
+
+    // Store books arr as string object to LS(LS keep all objects as strings only)
+    window.localStorage.setItem('books', JSON.stringify(books))
+  }
+
+  static removeBook (book) {
+
+  }
 }
+
+// DOM load event listener
+document.addEventListener('DOMContentLoaded', () => {
+  Storage.displayBooks()
+})
 
 // Event listener for add a book
 document.querySelector('#db-book-form').addEventListener('submit', (e) => {
@@ -82,6 +129,9 @@ document.querySelector('#db-book-form').addEventListener('submit', (e) => {
   } else {
     // Add book to ui
     ui.addBookList(book)
+
+    // Add book to Storage
+    Storage.addBook(book)
 
     // Show success msg
     ui.showMsg('Book added!', 'success')
@@ -106,7 +156,7 @@ document.querySelector('#db-book-list').addEventListener('click', (e) => {
   ui.deleteBook(e.target)
 
   // Show message
-  ui.showMsg('Book removed!', 'success')
+  ui.showMsg('Book removed!', 'warning')
 
   e.preventDefault()
 })
