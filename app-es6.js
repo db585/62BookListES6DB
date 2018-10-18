@@ -100,8 +100,22 @@ class Storage {
     window.localStorage.setItem('books', JSON.stringify(books))
   }
 
-  static removeBook (book) {
+  // Hope that isbn is unique value of book in our list
+  static removeBook (isbn) {
+    // console.log(isbn)
 
+    // Get books object from LS as an array
+    const books = Storage.getBooks()
+
+    // Make lis from books arr
+    books.forEach((book, index) => {
+      if (book.isbn === isbn) {
+        books.splice(index, 1)
+      }
+    })
+
+    // Store books arr as string object to LS(LS keep all objects as strings only)
+    window.localStorage.setItem('books', JSON.stringify(books))
   }
 }
 
@@ -154,6 +168,10 @@ document.querySelector('#db-book-list').addEventListener('click', (e) => {
 
   // passing event.target parametr to deleteBook func
   ui.deleteBook(e.target)
+
+  // delete book from LS
+  // console.log(e.target.parentElement.previousElementSibling.textContent)
+  Storage.removeBook(e.target.parentElement.previousElementSibling.textContent)
 
   // Show message
   ui.showMsg('Book removed!', 'warning')

@@ -4,4 +4,4 @@
 
 ## Project \#4
 
-Book List App with ES6 classes
+Book List App with ES6 classes and LocalStorage keeping
